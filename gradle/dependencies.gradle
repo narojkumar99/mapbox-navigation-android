@@ -30,7 +30,8 @@ ext {
       commonsIO          : '2.5',
       robolectric        : '3.5.1',
       lifecycle          : '1.0.0',
-      picasso            : '2.5.2'
+      picasso            : '2.5.2',
+      gmsLocation        : '11.0.4'
   ]
 
   pluginVersion = [
@@ -52,6 +53,7 @@ ext {
       mapboxJavaServices     : "com.mapbox.mapboxsdk:mapbox-java-services:${version.mapboxServices}",
       mapboxSdkServices      : "com.mapbox.mapboxsdk:mapbox-sdk-services:${version.mapboxSdkServices}",
       mapboxSdkTurf          : "com.mapbox.mapboxsdk:mapbox-sdk-turf:${version.mapboxSdkServices}",
+      mapboxEvents           : "com.mapbox.mapboxsdk:mapbox-android-telemetry:${version.mapboxEvents}",
       locationLayerPlugin    : "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:${version.locationLayerPlugin}",
 
       // AutoValue
@@ -99,6 +101,8 @@ ext {
 
       // aws polly
       polly                  : "com.amazonaws:aws-android-sdk-polly:${version.awsPolly}",
+      // play services
+      gmsLocation            : "com.google.android.gms:play-services-location:${version.gmsLocation}",
 
       errorprone             : "com.google.errorprone:error_prone_core:${version.errorprone}"
 
