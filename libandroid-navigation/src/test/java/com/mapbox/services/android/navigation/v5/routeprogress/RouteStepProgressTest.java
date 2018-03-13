@@ -381,7 +381,7 @@ public class RouteStepProgressTest extends BaseTest {
 
     int currentStepTotal = route.legs().get(0).steps().get(lastStepIndex).intersections().size();
     List<Point> lastStepLocation = PolylineUtils.decode(
-    route.legs().get(0).steps().get(lastStepIndex).geometry(), Constants.PRECISION_6);
+      route.legs().get(0).steps().get(lastStepIndex).geometry(), Constants.PRECISION_6);
 
     assertEquals(currentStepTotal, routeStepProgress.intersections().size());
     assertEquals(routeStepProgress.intersections().get(0).location().latitude(), lastStepLocation.get(0).latitude());

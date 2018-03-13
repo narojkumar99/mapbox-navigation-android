@@ -52,7 +52,7 @@ ext {
       mapboxServices         : "com.mapbox.mapboxsdk:mapbox-android-services:${version.mapboxServices}",
       mapboxJavaServices     : "com.mapbox.mapboxsdk:mapbox-java-services:${version.mapboxServices}",
       mapboxSdkServices      : "com.mapbox.mapboxsdk:mapbox-sdk-services:${version.mapboxSdkServices}",
-      mapboxSdkTurf          : "com.mapbox.mapboxsdk:mapbox-sdk-turf:${version.mapboxSdkServices}",
+      mapboxSdkTurf          : "com.mapbox.mapboxsdk:mapbox-sdk-turf:3.0.0-20180312.203058-42",
       mapboxEvents           : "com.mapbox.mapboxsdk:mapbox-android-telemetry:${version.mapboxEvents}",
       locationLayerPlugin    : "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:${version.locationLayerPlugin}",
 
