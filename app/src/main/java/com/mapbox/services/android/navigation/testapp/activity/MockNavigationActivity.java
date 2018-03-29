@@ -22,8 +22,8 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
-import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
+import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 import com.mapbox.services.android.navigation.testapp.R;
 import com.mapbox.services.android.navigation.testapp.Utils;
 import com.mapbox.services.android.navigation.testapp.activity.notification.CustomNavigationNotification;
@@ -154,8 +154,7 @@ public class MockNavigationActivity extends AppCompatActivity implements OnMapRe
     this.mapboxMap = mapboxMap;
 
     locationLayerPlugin = new LocationLayerPlugin(mapView, mapboxMap, null);
-    locationLayerPlugin.setLocationLayerEnabled(LocationLayerMode.NAVIGATION);
-
+    locationLayerPlugin.setRenderMode(RenderMode.GPS);
     navigationMapRoute = new NavigationMapRoute(navigation, mapView, mapboxMap);
 
     mapboxMap.addOnMapClickListener(this);
@@ -220,7 +219,7 @@ public class MockNavigationActivity extends AppCompatActivity implements OnMapRe
 
       @Override
       public void onFailure(Call<DirectionsResponse> call, Throwable throwable) {
-        Timber.e("onFailure: navigation.getRoute()", throwable);
+        Timber.e(throwable, "onFailure: navigation.getRoute()");
       }
     });
   }

@@ -552,9 +552,9 @@ public class NavigationMapRoute implements ProgressChangeListener, MapView.OnMap
       waypointLayer = new SymbolLayer(WAYPOINT_LAYER_ID, WAYPOINT_SOURCE_ID).withProperties(
         PropertyFactory.iconImage(match(
           get("waypoint"),
-          literal("originMarker"), literal("originMarker"),
+          literal("origin"), literal("originMarker"),
           literal("destination"), literal("destinationMarker"),
-          literal("defaultOutputIfAboveDoesntMatch")
+          literal("originMarker")
           )
         ),
         PropertyFactory.iconSize(interpolate(

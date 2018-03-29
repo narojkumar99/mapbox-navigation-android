@@ -37,8 +37,8 @@ import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
-import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
+import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 import com.mapbox.services.android.navigation.testapp.R;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
@@ -265,7 +265,7 @@ public class NavigationViewActivity extends AppCompatActivity implements OnMapRe
   @SuppressWarnings( {"MissingPermission"})
   private void initLocationLayer() {
     locationLayer = new LocationLayerPlugin(mapView, mapboxMap, locationEngine);
-    locationLayer.setLocationLayerEnabled(LocationLayerMode.COMPASS);
+    locationLayer.setRenderMode(RenderMode.COMPASS);
   }
 
   private void initMapRoute() {
