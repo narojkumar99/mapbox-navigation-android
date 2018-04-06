@@ -493,7 +493,7 @@ public class NavigationView extends CoordinatorLayout implements LifecycleObserv
     int mapViewHeight = mapView.getHeight();
     int bottomSheetHeight = summaryBottomSheet.getHeight();
     int topPadding = mapViewHeight - (bottomSheetHeight * 4);
-    locationLayer.setPadding(0, topPadding, 0, 0);
+    map.setPadding(0, topPadding, 0, 0);
   }
 
   /**

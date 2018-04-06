@@ -53,8 +53,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import timber.log.Timber;
 
-/* import com.mapbox.mapboxsdk.constants.MyLocationTracking; */
-
 public class MockNavigationActivity extends AppCompatActivity implements OnMapReadyCallback,
   MapboxMap.OnMapClickListener, ProgressChangeListener, NavigationEventListener,
   MilestoneEventListener, OffRouteListener {
@@ -143,9 +141,6 @@ public class MockNavigationActivity extends AppCompatActivity implements OnMapRe
         Point.fromLngLat(latLng.getLongitude(), latLng.getLatitude())
       );
       mapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
-      // TODO Check and remove if not necessary
-      /* mapboxMap.setMyLocationEnabled(true); */
-      /* mapboxMap.getTrackingSettings().setMyLocationTrackingMode(MyLocationTracking.TRACKING_FOLLOW); */
     }
   }
 
@@ -161,8 +156,6 @@ public class MockNavigationActivity extends AppCompatActivity implements OnMapRe
     Snackbar.make(mapView, "Tap map to place waypoint", BaseTransientBottomBar.LENGTH_LONG).show();
 
     locationEngine = new MockLocationEngine(1000, 50, true);
-    // TODO Check and remove if not necessary
-    /* mapboxMap.setLocationSource(locationEngine); */
 
     newOrigin();
   }
@@ -183,7 +176,6 @@ public class MockNavigationActivity extends AppCompatActivity implements OnMapRe
   }
 
   private void calculateRoute() {
-    // TODO Check
     Location userLocation = locationEngine.getLastLocation();
     if (userLocation == null) {
       Timber.d("calculateRoute: User location is null, therefore, origin can't be set.");

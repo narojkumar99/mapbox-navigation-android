@@ -154,9 +154,6 @@ class NavigationTelemetry implements LocationEngineListener, NavigationMetricLis
       // Enable extra logging in debug mode
       mapboxTelemetry.updateDebugLoggingEnabled(true);
 
-      // TODO This won't be necessary if MapboxTelemetry is already set up
-      updateUserAgent(context, accessToken, sdkIdentifier);
-
       // Get the current vendorId
       vendorId = obtainVendorId(context);
 
@@ -356,14 +353,6 @@ class NavigationTelemetry implements LocationEngineListener, NavigationMetricLis
     return sdkIdentifier;
   }
 
-  // TODO Check and remove if not necessary
-  private void updateUserAgent(@NonNull Context context, @NonNull String accessToken, String sdkIdentifier) {
-    /* String userAgent = String.format("%s/%s", sdkIdentifier, BuildConfig.MAPBOX_NAVIGATION_VERSION_NAME); */
-    /* MapboxTelemetry.getInstance().initialize(context, accessToken, userAgent, sdkIdentifier, */
-    /* BuildConfig.MAPBOX_NAVIGATION_VERSION_NAME); */
-    /* MapboxTelemetry.getInstance().newUserAgent(userAgent); */
-  }
-
   private void flushEventQueues() {
     for (FeedbackEvent feedbackEvent : queuedFeedbackEvents) {
       sendFeedbackEvent(feedbackEvent);
@@ -534,7 +523,7 @@ class NavigationTelemetry implements LocationEngineListener, NavigationMetricLis
 
     NavigationMetricsWrapper.feedbackEvent(feedbackSessionState, metricProgress,
       feedbackEvent.getSessionState().eventLocation(), feedbackEvent.getDescription(),
-      feedbackEvent.getFeedbackType(), feedbackEvent.getScreenshot(), feedbackEvent.getEventId(), vendorId);
+      feedbackEvent.getFeedbackType(), feedbackEvent.getScreenshot(), vendorId, feedbackEvent.getFeedbackSource());
   }
 
   private TelemetryEvent findQueuedTelemetryEvent(String eventId) {

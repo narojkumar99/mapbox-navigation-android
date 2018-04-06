@@ -1,6 +1,5 @@
 package com.mapbox.services.android.navigation.testapp;
 
-import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,11 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements PermissionsListener {
-
-  // TODO Check and remove if not necessary
-  private static final String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION,
-    Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_NETWORK_STATE};
-
   private RecyclerView recyclerView;
   private PermissionsManager permissionsManager;
 
