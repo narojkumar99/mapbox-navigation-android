@@ -125,7 +125,7 @@ public class MockNavigationActivity extends AppCompatActivity implements OnMapRe
       ((MockLocationEngine) locationEngine).setRoute(route);
       navigation.setLocationEngine(locationEngine);
       navigation.startNavigation(route);
-      mapboxMap.addOnMapClickListener(null);
+      mapboxMap.removeOnMapClickListener(this);
     }
   }
 
