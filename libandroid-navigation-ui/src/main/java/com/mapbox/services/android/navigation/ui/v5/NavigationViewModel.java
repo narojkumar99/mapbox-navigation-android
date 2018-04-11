@@ -50,13 +50,13 @@ public class NavigationViewModel extends AndroidViewModel implements ProgressCha
   final MutableLiveData<Location> navigationLocation = new MutableLiveData<>();
   final MutableLiveData<DirectionsRoute> fasterRoute = new MutableLiveData<>();
   final MutableLiveData<OffRouteEvent> offRouteEvent = new MutableLiveData<>();
+  final MutableLiveData<RouteProgress> routeProgress = new MutableLiveData<>();
   final MutableLiveData<Boolean> isRunning = new MutableLiveData<>();
   final MutableLiveData<Boolean> shouldRecordScreenshot = new MutableLiveData<>();
 
   private MapboxNavigation navigation;
   private NavigationInstructionPlayer instructionPlayer;
   private ConnectivityManager connectivityManager;
-  private RouteProgress routeProgress;
   private String feedbackId;
   private String screenshot;
   private Locale locale;
@@ -87,7 +87,7 @@ public class NavigationViewModel extends AndroidViewModel implements ProgressCha
    */
   @Override
   public void onProgressChange(Location location, RouteProgress routeProgress) {
-    this.routeProgress = routeProgress;
+    this.routeProgress.setValue(routeProgress);
     instructionModel.setValue(new InstructionModel(getApplication(), routeProgress, locale, unitType));
     summaryModel.setValue(new SummaryModel(getApplication(), routeProgress, locale, unitType, timeFormatType));
     navigationLocation.setValue(location);
@@ -108,7 +108,7 @@ public class NavigationViewModel extends AndroidViewModel implements ProgressCha
   public void userOffRoute(Location location) {
     if (hasNetworkConnection()) {
       Point newOrigin = Point.fromLngLat(location.getLongitude(), location.getLatitude());
-      this.offRouteEvent.setValue(new OffRouteEvent(newOrigin, routeProgress));
+      this.offRouteEvent.setValue(new OffRouteEvent(newOrigin, routeProgress.getValue()));
       isOffRoute.setValue(true);
     }
   }

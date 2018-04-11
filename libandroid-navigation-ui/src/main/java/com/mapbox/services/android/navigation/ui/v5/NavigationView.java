@@ -32,6 +32,9 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
+import com.mapbox.mapboxsdk.style.layers.Layer;
+import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.services.android.navigation.ui.v5.camera.NavigationCamera;
 import com.mapbox.services.android.navigation.ui.v5.instruction.InstructionLoader;
 import com.mapbox.services.android.navigation.ui.v5.instruction.InstructionView;
@@ -39,7 +42,9 @@ import com.mapbox.services.android.navigation.ui.v5.location.LocationViewModel;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.ui.v5.route.RouteViewModel;
 import com.mapbox.services.android.navigation.ui.v5.summary.SummaryBottomSheet;
+import com.mapbox.services.android.navigation.ui.v5.utils.MapUtils;
 import com.mapbox.services.android.navigation.ui.v5.utils.ViewUtils;
+import com.mapbox.services.android.navigation.ui.v5.wayname.WaynameView;
 import com.mapbox.services.android.navigation.v5.location.MockLocationEngine;
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
@@ -50,6 +55,26 @@ import com.mapbox.services.android.navigation.v5.utils.LocaleUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static com.mapbox.mapboxsdk.style.functions.Function.zoom;
+import static com.mapbox.mapboxsdk.style.functions.stops.Stop.stop;
+import static com.mapbox.mapboxsdk.style.functions.stops.Stops.exponential;
+import static com.mapbox.mapboxsdk.style.layers.Property.ICON_ANCHOR_TOP;
+import static com.mapbox.mapboxsdk.style.layers.Property.ICON_ROTATION_ALIGNMENT_VIEWPORT;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAnchor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconRotationAlignment;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+import static com.mapbox.services.android.navigation.v5.navigation.NavigationConstants.MAPBOX_LOCATION_SOURCE;
+import static com.mapbox.services.android.navigation.v5.navigation.NavigationConstants.MAPBOX_WAYNAME_ICON;
+import static com.mapbox.services.android.navigation.v5.navigation.NavigationConstants.MAPBOX_WAYNAME_LAYER;
+import static com.mapbox.services.android.navigation.v5.navigation.NavigationConstants.PADDING_MULTIPLIER;
+import static com.mapbox.services.android.navigation.v5.navigation.NavigationConstants.TWELVE_DP;
+import static com.mapbox.services.android.navigation.v5.navigation.NavigationConstants.WAYNAME_OFFSET;
 
 /**
  * View that creates the drop-in UI.
@@ -93,8 +118,10 @@ public class NavigationView extends CoordinatorLayout implements LifecycleObserv
   private NavigationCamera camera;
   private LocationLayerPlugin locationLayer;
   private OnNavigationReadyCallback onNavigationReadyCallback;
-  private boolean resumeState;
   private boolean isInitialized;
+  private boolean resumeState;
+  private int padding;
+  private int waynamePadding;
   private List<Marker> markers = new ArrayList<>();
 
   public NavigationView(Context context) {
@@ -205,6 +232,7 @@ public class NavigationView extends CoordinatorLayout implements LifecycleObserv
       @Override
       public void onStyleLoaded(String style) {
         initRoute();
+        initWaynameLayer();
         initLocationLayer();
         initLifecycleObservers();
         initNavigationPresenter();
@@ -244,12 +272,14 @@ public class NavigationView extends CoordinatorLayout implements LifecycleObserv
   public void setCameraTrackingEnabled(boolean isEnabled) {
     if (camera != null) {
       camera.setCameraTrackingLocation(isEnabled);
+      updateWaynameVisibility(isEnabled);
     }
   }
 
   @Override
   public void resetCameraPosition() {
     camera.resetCameraPosition();
+    updateWaynameVisibility(true);
   }
 
   @Override
@@ -348,6 +378,33 @@ public class NavigationView extends CoordinatorLayout implements LifecycleObserv
   @Override
   public void updateLocationLayer(Location location) {
     locationLayer.forceLocationUpdate(location);
+  }
+
+  @Override
+  public void updateWaynameVisibility(boolean isVisible) {
+    Layer waynameLayer = map.getLayer(MAPBOX_WAYNAME_LAYER);
+    if (waynameLayer != null) {
+      waynameLayer.setProperties(visibility(isVisible ? Property.VISIBLE : Property.NONE));
+      int padding = isVisible ? waynamePadding : this.padding;
+      map.setPadding(0, padding, 0, 0);
+    }
+  }
+
+  @Override
+  public void updateWaynameLayer(String wayname) {
+    Layer waynameLayer = map.getLayer(MAPBOX_WAYNAME_LAYER);
+    if (waynameLayer != null) {
+      boolean isVisible = waynameLayer.getVisibility().getValue().contentEquals(Property.VISIBLE);
+      if (isVisible) {
+        WaynameView waynameView = new WaynameView(getContext());
+        waynameView.setWaynameText(wayname);
+        Bitmap waynameBitMap = ViewUtils.loadBitmapFromView(waynameView);
+        if (waynameBitMap != null) {
+          map.addImage(MAPBOX_WAYNAME_ICON, waynameBitMap);
+          waynameLayer.setProperties(iconImage(MAPBOX_WAYNAME_ICON));
+        }
+      }
+    }
   }
 
   /**
@@ -492,8 +549,9 @@ public class NavigationView extends CoordinatorLayout implements LifecycleObserv
   private void initMapPadding() {
     int mapViewHeight = mapView.getHeight();
     int bottomSheetHeight = summaryBottomSheet.getHeight();
-    int topPadding = mapViewHeight - (bottomSheetHeight * 4);
-    map.setPadding(0, topPadding, 0, 0);
+    padding = mapViewHeight - ((bottomSheetHeight * PADDING_MULTIPLIER));
+    waynamePadding = (int) (padding - ViewUtils.dpToPx(getContext(), TWELVE_DP));
+    map.setPadding(0, padding, 0, 0);
   }
 
   /**
@@ -503,6 +561,30 @@ public class NavigationView extends CoordinatorLayout implements LifecycleObserv
   private void initRoute() {
     int routeStyleRes = ThemeSwitcher.retrieveNavigationViewStyle(getContext(), R.attr.navigationViewRouteStyle);
     mapRoute = new NavigationMapRoute(null, mapView, map, routeStyleRes);
+  }
+
+  /**
+   * Initializes and adds a {@link SymbolLayer} to the map to be used for
+   * the displaying the current way name underneath the navigation icon.
+   */
+  private void initWaynameLayer() {
+    SymbolLayer waynameLayer = new SymbolLayer(MAPBOX_WAYNAME_LAYER, MAPBOX_LOCATION_SOURCE)
+      .withProperties(
+        iconAllowOverlap(true),
+        iconIgnorePlacement(true),
+        iconSize(zoom(
+          exponential(
+            stop(22f, iconSize(1f)),
+            stop(12f, iconSize(1f)),
+            stop(10f, iconSize(0.6f)),
+            stop(0f, iconSize(0.6f))
+          ).withBase(1f)
+        )),
+        iconAnchor(ICON_ANCHOR_TOP),
+        iconOffset(WAYNAME_OFFSET),
+        iconRotationAlignment(ICON_ROTATION_ALIGNMENT_VIEWPORT)
+      );
+    MapUtils.addLayerToMap(map, waynameLayer, null);
   }
 
   /**

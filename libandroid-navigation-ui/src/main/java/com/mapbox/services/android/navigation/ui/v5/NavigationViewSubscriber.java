@@ -11,6 +11,7 @@ import com.mapbox.services.android.navigation.ui.v5.feedback.FeedbackItem;
 import com.mapbox.services.android.navigation.ui.v5.location.LocationViewModel;
 import com.mapbox.services.android.navigation.ui.v5.route.OffRouteEvent;
 import com.mapbox.services.android.navigation.ui.v5.route.RouteViewModel;
+import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress;
 import com.mapbox.services.android.telemetry.location.LocationEngine;
 
 class NavigationViewSubscriber {
@@ -115,6 +116,15 @@ class NavigationViewSubscriber {
           navigationPresenter.onRouteUpdate(directionsRoute);
           // To prevent from firing on rotation
           navigationViewModel.fasterRoute.setValue(null);
+        }
+      }
+    });
+
+    navigationViewModel.routeProgress.observe(owner, new Observer<RouteProgress>() {
+      @Override
+      public void onChanged(@Nullable RouteProgress routeProgress) {
+        if (routeProgress != null) {
+          navigationPresenter.onProgressUpdate(routeProgress);
         }
       }
     });
