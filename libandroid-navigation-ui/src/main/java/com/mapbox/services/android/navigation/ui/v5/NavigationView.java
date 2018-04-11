@@ -272,14 +272,12 @@ public class NavigationView extends CoordinatorLayout implements LifecycleObserv
   public void setCameraTrackingEnabled(boolean isEnabled) {
     if (camera != null) {
       camera.setCameraTrackingLocation(isEnabled);
-      updateWaynameVisibility(isEnabled);
     }
   }
 
   @Override
   public void resetCameraPosition() {
     camera.resetCameraPosition();
-    updateWaynameVisibility(true);
   }
 
   @Override
