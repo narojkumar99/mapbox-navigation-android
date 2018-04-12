@@ -38,7 +38,7 @@ public class NavigationCamera {
     public void onProgressChange(Location location, RouteProgress routeProgress) {
       if (trackingEnabled) {
         currentRouteInformation = buildRouteInformationFromLocation(location, routeProgress);
-        animateCameraFromLocation(currentRouteInformation);
+        animateCameraFromLocation(currentRouteInformation, null);
       }
     }
   };
@@ -96,8 +96,17 @@ public class NavigationCamera {
   public void resume(Location location) {
     if (location != null) {
       currentRouteInformation = buildRouteInformationFromLocation(location, null);
-      animateCameraFromLocation(currentRouteInformation);
-      navigation.addProgressChangeListener(progressChangeListener);
+      animateCameraFromLocation(currentRouteInformation, new MapboxMap.CancelableCallback() {
+        @Override
+        public void onCancel() {
+          navigation.addProgressChangeListener(progressChangeListener);
+        }
+
+        @Override
+        public void onFinish() {
+          navigation.addProgressChangeListener(progressChangeListener);
+        }
+      });
     } else {
       navigation.addProgressChangeListener(progressChangeListener);
     }
@@ -135,7 +144,7 @@ public class NavigationCamera {
       if (navigation.getCameraEngine() instanceof DynamicCamera) {
         ((DynamicCamera) navigation.getCameraEngine()).forceResetZoomLevel();
       }
-      animateCameraFromLocation(currentRouteInformation);
+      animateCameraFromLocation(currentRouteInformation, null);
     }
   }
 
@@ -187,9 +196,9 @@ public class NavigationCamera {
    *
    * @param position to which the camera should animate
    */
-  private void easeMapCameraPosition(CameraPosition position) {
+  private void easeMapCameraPosition(CameraPosition position, MapboxMap.CancelableCallback callback) {
     mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position),
-      obtainLocationUpdateDuration(), false, null);
+      obtainLocationUpdateDuration(), false, callback);
   }
 
   /**
@@ -238,7 +247,7 @@ public class NavigationCamera {
    *
    * @param routeInformation with location data
    */
-  private void animateCameraFromLocation(RouteInformation routeInformation) {
+  private void animateCameraFromLocation(RouteInformation routeInformation, MapboxMap.CancelableCallback callback) {
 
     Camera cameraEngine = navigation.getCameraEngine();
 
@@ -255,7 +264,7 @@ public class NavigationCamera {
       .zoom(zoom)
       .build();
 
-    easeMapCameraPosition(position);
+    easeMapCameraPosition(position, callback);
   }
 
   private int obtainLocationUpdateDuration() {
